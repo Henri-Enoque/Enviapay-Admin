@@ -52,6 +52,9 @@ function App() {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [accessToken, setAccessToken] = useState<string | null>(() => localStorage.getItem('admin_access_token'));
 
+  const API_BASE: string = (import.meta as any).env?.VITE_API_BASE_URL || '';
+  const apiUrl = (path: string) => `${API_BASE}${path}`;
+
   const getStatusBadgeClasses = (status?: string) => {
     const normalized = (status ?? 'pending').toLowerCase();
     if (normalized === 'approved') return 'bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20';
@@ -77,7 +80,7 @@ function App() {
     
     try {
       // Perform real admin login to get JWT (kept for future admin features)
-      const response = await fetch('/admin/login', {
+      const response = await fetch(apiUrl('/admin/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,7 +122,7 @@ function App() {
   const fetchPendingKYCs = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/admin/kyc/pending', {
+      const response = await fetch(apiUrl('/admin/kyc/pending'), {
         headers: {
           'Authorization': getAuthHeader(),
         },
@@ -151,7 +154,7 @@ function App() {
   const approveKYC = async (kycId: number) => {
     setProcessingId(kycId);
     try {
-      const response = await fetch(`/admin/kyc/${kycId}/approve`, {
+      const response = await fetch(apiUrl(`/admin/kyc/${kycId}/approve`), {
         method: 'POST',
         headers: {
           'Authorization': getAuthHeader(),
@@ -192,7 +195,7 @@ function App() {
         formData.append('reason', reason.trim());
       }
 
-      const response = await fetch(`/admin/kyc/${kycId}/reject`, {
+      const response = await fetch(apiUrl(`/admin/kyc/${kycId}/reject`), {
         method: 'POST',
         headers: {
           'Authorization': getAuthHeader(),
